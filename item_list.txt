@@ -1,0 +1,9 @@
+warp7_button_test.sh
+warp7_lcd_test.sh
+warp7_audio_test.sh
+warp7_sensor_test.sh
+warp7_battery_test.sh
+warp7_wifi_test.sh
+warp7_bluetooth_test.sh
+warp7_nfc_test.sh
+warp7_camera_test.sh
