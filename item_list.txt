@@ -7,3 +7,4 @@ warp7_wifi_test.sh
 warp7_bluetooth_test.sh
 warp7_nfc_test.sh
 warp7_camera_test.sh
+warp7_usb_emmc_test.sh
