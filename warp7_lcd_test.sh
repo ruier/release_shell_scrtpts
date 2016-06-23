@@ -1,7 +1,8 @@
 #!/bin/bash
 
-if [ ! -e /dev/fb0 ] ; 
-	then exit 1 ; 
+if [ ! -e /dev/fb0 ] ; then 
+	echo -e "\n\033[31mFAIL\033[0m\n"
+	exit 1 ; 
 fi
 
 fbset -yres 319
