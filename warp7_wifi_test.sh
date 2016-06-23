@@ -12,6 +12,12 @@ log_to_std()
         echo 8 > /proc/sys/kernel/printk
 }
 
+wifi_init()
+{
+	ifconfig wlan0 down
+	kill `pidof wpa_supplicant` > /dev/null
+}
+
 wifi_test()
 {
         mkdir -p /lib/firmware
@@ -40,9 +46,10 @@ wifi_loop()
                 wpa_cli scan_result
                 log_to_file
                 wait
-                sleep 5
+                sleep 2
 
                 wifi_connect
+                sleep 3
                 if [ 6 = $? ] ; then
                        ping -c 3 192.168.2.1 > /dev/null
                        return $?
@@ -50,6 +57,7 @@ wifi_loop()
         done
 }
 
+wifi_init
 wifi_test
 wifi_loop
 
