@@ -44,7 +44,6 @@ if [ $return_code == 1 ]; then
 
 elif [ $return_code == 0 ] ; then
         echo -e "\033[32mPASS\n\033[0m"
-        exit 0
 fi
 
 sensor_test fxas2100x
@@ -57,7 +56,6 @@ if [ $return_code == 1 ]; then
 
 elif [ $return_code == 0 ] ; then
         echo -e "\033[32mPASS\n\033[0m"
-        exit 0
 fi
 
 sensor_test mpl3115
@@ -70,7 +68,6 @@ if [ $return_code == 1 ]; then
 
 elif [ $return_code == 0 ] ; then
         echo -e "\033[32mPASS\n\033[0m"
-        exit 0
 fi
 
 exit 0
