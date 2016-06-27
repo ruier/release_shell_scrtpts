@@ -55,6 +55,7 @@ wifi_loop()
                        return $?
                 fi
         done
+	return 1 #this means that we can not find the ava ap
 }
 
 wifi_init
@@ -71,3 +72,4 @@ elif [ $return_code == 0 ] ; then
         echo -e "\033[32mPASS\n\033[0m"
         exit 0
 fi
+
