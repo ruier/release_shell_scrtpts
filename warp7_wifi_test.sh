@@ -49,10 +49,13 @@ wifi_loop()
                 sleep 2
 
                 wifi_connect
+		is_connected=$?
                 sleep 3
-                if [ 6 = $? ] ; then
+                if [ 6 = $is_connected ] ; then
                        ping -c 3 192.168.2.1 > /dev/null
-                       return $?
+                       if [ 0 = $? ] ; then
+				return 0
+			fi
                 fi
         done
 	return 1 #this means that we can not find the ava ap
