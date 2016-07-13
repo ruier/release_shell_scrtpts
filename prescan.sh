@@ -74,67 +74,45 @@ audio_loop()
 	done
 }
 
-
-sensor_test()
+sensor_init()
 {
-	println "start getting sensor data"
-	sleep 1
-	./mmc/utils/detect_acclerometer
-	sleep 1
-	./mmc/utils/detect_gyrometer
-	sleep 1
-	./mmc/utils/detect_mpl3115
-	sleep 1
-	./mmc/utils/mpl3115_temperature << end
-1
-end
+sensor1=/sys/class/misc/FreescaleAccelerometer
+sensor2=/sys/class/misc/FreescaleGyroscope
+sensor3=/sys/class/misc/FreescaleMagnetometer
 
-}
-
-sensor_loop()
-{
-	while true
-	do
-		sensor_test
-		wait
-	done
+echo 1 > $sensor1/enable
+echo 1 > $sensor2/enable
+echo 1 > $sensor3/enable
 }
 
 wifi_test()
 {
-	mkdir -p /lib/firmware
-	cp mmc/bcm /lib/firmware/ -r
-	insmod modules/bcmdhd.ko
-	wpa_supplicant -B -i wlan0 -c /etc/wpa_supplicant.conf -D nl80211
-	wpa_cli scan
+insmod /lib/modules/4.1.15-1.0.0+g54cf6a2/kernel/drivers/net/wireless/bcmdhd/bcmdhd.ko \
+firmware_path=/lib/firmware/bcm/fw_bcmdhd.bin \
+nvram_path=/lib/firmware/bcm/bcmdhd.cal 
 }
 
 wifi_connect()
 {
-	C=`wpa_cli status | grep COMPLETED`
-
-	if [ ! -z $C ] ; then
-		dhcpcd
-		return 6
-	fi
+wl down
+wl mpc 0
+wl phy_watchdog 0
+wl glacial_timer 0x7fffffff
+wl country ALL
+wl band b
+wl chanspec 7/20
+wl up
+wl phy_forcecal 1
+wl scansuppress 1
+wl phy_txpwrctrl 1
+wl pkteng_start 00:11:22:33:44:55 rx
+sleep 60
+wl pkteng_stop rx
 }
 
 wifi_loop()
 {
-	while true
-	do
-		wpa_cli scan
-		log_to_std
-		wpa_cli scan_result
-		log_to_file
-		wait
-		sleep 5
-
-		wifi_connect
-		if [ 6 = $? ] ; then
-			break;
-		fi
-	done
+wifi_connect
 }
 
 battery_test()
@@ -157,6 +135,20 @@ battery_loop()
 	done
 }
 
+bt_init() {
+echo 145 > /sys/class/gpio/export
+echo out > /sys/class/gpio/gpio145/direction
+echo 0 > /sys/class/gpio/gpio145/value
+sleep .500
+echo 1 > /sys/class/gpio/gpio145/value
+sleep 1
+hciattach ttymxc2 bcm43xx 3000000 flow
+sleep .100
+hciconfig hci0 up
+sleep .100
+hciconfig -a
+}
+
 start_test()
 {
 	log_to_file
@@ -165,12 +157,13 @@ start_test()
 	println ¡°start audio play¡±
 	audio_loop &
 	println ¡°start sensor read¡±
-	sensor_loop &
+	sensor_init
 	println ¡°start battery status¡±
 	battery_loop &
 	println ¡°start wifi scan¡±
 	wifi_test
 	wifi_loop &
+	bt_init
 }
 
 goto_workspace
