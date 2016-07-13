@@ -15,15 +15,15 @@ log_to_std()
 wifi_init()
 {
 	ifconfig wlan0 down
-	kill `pidof wpa_supplicant` > /dev/null
+	kill `pidof wpa_supplicant2` > /dev/null
 }
 
 wifi_test()
 {
-        mkdir -p /lib/firmware
-        cp mmc/bcm /lib/firmware/ -r
-        insmod modules/bcmdhd.ko
-        wpa_supplicant -B -i wlan0 -c /etc/wpa_supplicant.conf -D nl80211
+	insmod /lib/modules/4.1.15-1.0.0+g54cf6a2/kernel/drivers/net/wireless/bcmdhd/bcmdhd.ko \
+firmware_path=/lib/firmware/bcm/fw_bcmdhd.bin \
+nvram_path=/lib/firmware/bcm/bcmdhd.cal 
+        wpa_supplicant2 -B -i wlan0 -c /etc/wpa_supplicant.conf -D nl80211
         wpa_cli scan
 }
 
@@ -31,14 +31,18 @@ wifi_connect()
 {
         C=`wpa_cli status | grep COMPLETED`
 
-        if [ ! -z $C ] ; then
+        if [ ! -z $C ] && [ -f /bin/dhcpcd ]; then
                 dhcpcd
                 return 6
+	else
+		ifconfig wlan0 192.168.2.254
+		return 6
         fi
 }
 
 wifi_loop()
 {
+	ifconfig wlan0 up
         for ((COUNTER=0; COUNTER<5; ++COUNTER))  
         do
                 wpa_cli scan
